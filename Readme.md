@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Ольга Одноколова](https://up.htmlacademy.ru/javascript/9/user/38936).
-* Наставник: `Неизвестно`.
+* Наставник: [Софья Ильинова](https://up.htmlacademy.ru/javascript/9/user/393).
 
 ---
 
