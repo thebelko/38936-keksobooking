@@ -10,10 +10,13 @@ var LODGES_TYPES = {
 var CHECK_TIMES = ['12:00', '13:00', '14:00'];
 var FEATURES_TYPE = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 
+var ESC = 27;
+var ENTER = 13;
+
 var tokyoBlock = document.querySelector('.tokyo');
 var pinMap = tokyoBlock.querySelector('.tokyo__pin-map');
 var offerDialogBlock = tokyoBlock.querySelector('#offer-dialog');
-var offerDialogPanel = tokyoBlock.querySelector('.dialog__panel');
+var offerDialogCloseBtn = offerDialogBlock.querySelector('.dialog__close');
 var offerDialogAvatar = tokyoBlock.querySelector('.dialog__title img');
 
 var offerDialogTemplate = document.querySelector('#lodge-template').content;
@@ -24,6 +27,14 @@ var getRandomNumber = function (min, max) {
 
 var getRandomArrItem = function (arr) {
   return arr[getRandomNumber(0, arr.length)];
+};
+
+var isEscPressed = function (evt) {
+  return evt.keyCode === ESC;
+};
+
+var isEnterPressed = function (evt) {
+  return evt.keyCode === ENTER;
 };
 
 var getRandomFeatures = function () {
@@ -106,9 +117,22 @@ var renderPin = function (advert) {
 
   pin.classList.add('pin');
   pin.innerHTML = '<img src="' + advert.author.avatar + '"  class="rounded" width="40" height="40">';
+  pin.tabIndex = 0;
   pin.style.left = advert.location.x + 'px';
   pin.style.top = advert.location.y + 'px';
   pin.style.transform = 'translate(' + -pin.offsetWidth / 2 + 'px,' + -pin.offsetHeight + 'px)';
+
+  pin.addEventListener('click', function (evt) {
+    openOfferDialog(advert);
+    addActivePin(evt.currentTarget);
+  });
+
+  pin.addEventListener('keydown', function (evt) {
+    if (isEnterPressed(evt)) {
+      addActivePin(evt.target);
+      openOfferDialog(advert);
+    }
+  });
 
   return pin;
 };
@@ -139,7 +163,54 @@ var renderOfferDialog = function (lodge) {
   return lodgeBlock;
 };
 
-var adverts = getAdverts(8);
-renderPins(adverts);
-offerDialogBlock.replaceChild(renderOfferDialog(adverts[0]), offerDialogPanel);
-offerDialogAvatar.src = adverts[0].author.avatar;
+var openOfferDialog = function (advert) {
+  var offerDialogPanel = tokyoBlock.querySelector('.dialog__panel');
+
+  offerDialogAvatar.src = advert.author.avatar;
+  offerDialogBlock.replaceChild(renderOfferDialog(advert), offerDialogPanel);
+  offerDialogBlock.classList.remove('dialog--hidden');
+
+  document.addEventListener('keydown', offerDialogEscPressHandler);
+};
+
+var closeOfferDialog = function () {
+  offerDialogBlock.classList.add('dialog--hidden');
+
+  document.removeEventListener('keydown', offerDialogEscPressHandler);
+};
+
+var offerDialogEscPressHandler = function (evt) {
+  if (isEscPressed(evt)) {
+    closeOfferDialog();
+    removeActivePin();
+  }
+};
+
+var removeActivePin = function () {
+  var activePin = pinMap.querySelector('.pin.pin--active');
+
+  if (activePin) {
+    activePin.classList.remove('pin--active');
+  }
+};
+
+var addActivePin = function (clickedPin) {
+  removeActivePin();
+  clickedPin.classList.add('pin--active');
+};
+
+
+renderPins(getAdverts(8));
+
+
+offerDialogCloseBtn.addEventListener('click', function () {
+  closeOfferDialog();
+  removeActivePin();
+});
+
+offerDialogCloseBtn.addEventListener('keydown', function (evt) {
+  if (isEnterPressed(evt)) {
+    closeOfferDialog();
+    removeActivePin();
+  }
+});
