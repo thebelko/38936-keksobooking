@@ -419,6 +419,10 @@ select option:hover {
     margin: 35px auto;
 }
 
+.form-error {
+  box-shadow: 0 0 4px 1px red;
+}
+
 .footer {
     box-sizing: border-box;
     margin: 0 auto;
