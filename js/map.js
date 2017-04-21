@@ -1,6 +1,6 @@
 'use strict';
 
-window.pins = (function () {
+(function () {
   var pinMap = document.querySelector('.tokyo__pin-map');
   var fragment = document.createDocumentFragment();
 
@@ -15,6 +15,9 @@ window.pins = (function () {
   var createPinMainDrag = function () {
     var pinMain = document.querySelector('.pin__main');
     var addressInput = document.querySelector('#address');
+    var mapImg = document.querySelector('.tokyo img');
+    var mapCoords = mapImg.getBoundingClientRect();
+
     pinMain.style.transform = 'translate(' + -pinMain.offsetWidth / 2 + 'px,' + -pinMain.offsetHeight + 'px)';
 
     pinMain.addEventListener('mousedown', function (evt) {
@@ -38,21 +41,16 @@ window.pins = (function () {
           y: moveEvt.clientY
         };
 
-        console.log('startCoords x:' + startCoords.x + 'y:' + startCoords.y);
-        console.log('moveClientX: ' + moveEvt.clientX + 'moveClientY: ' + moveEvt.clientY);
+        addressInput.value = 'x:' + pinMain.style.left + ', y:' + pinMain.style.top;
 
-        console.dir(document.querySelector('.tokyo'));
-
-        if (moveEvt.pageX < 1200 && moveEvt.pageY < 660) {
+        if (moveEvt.clientY < mapCoords.bottom && (moveEvt.clientX > mapCoords.right || moveEvt.clientX < mapCoords.left)) {
+          pinMain.style.top = (pinMain.offsetTop - shift.y) + 'px';
+        } else if (moveEvt.clientY > mapCoords.bottom) {
+          pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
+        } else {
           pinMain.style.top = (pinMain.offsetTop - shift.y) + 'px';
           pinMain.style.left = (pinMain.offsetLeft - shift.x) + 'px';
-
-          addressInput.value = 'x:' + pinMain.style.left + ', y:' + pinMain.style.top;
-        } else {
-          pinMain.style.top = startCoords.y;
-          pinMain.style.left = startCoords.x;
         }
-
       };
 
       var pinMouseUpHandler = function (upEvt) {
@@ -67,11 +65,6 @@ window.pins = (function () {
     });
   };
 
-  return {
-    render: renderPins,
-    mainPinDrag: createPinMainDrag
-  };
+  renderPins(window.getAdverts(8));
+  createPinMainDrag();
 })();
-
-window.pins.render(window.getAdverts(8));
-window.pins.mainPinDrag();
